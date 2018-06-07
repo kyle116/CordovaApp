@@ -28,6 +28,12 @@ var app = {
     // 'pause', 'resume', etc.
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
+        window.addEventListener("batterystatus", onBatteryStatus, false); 
+        document.getElementById("cameraTakePicture").addEventListener("click", cameraTakePicture); 
+        document.getElementById("cameraGetPicture").addEventListener("click", cameraGetPicture); 
+        document.getElementById("createContact").addEventListener("click", createContact);
+        document.getElementById("findContact").addEventListener("click", findContact);
+        document.getElementById("deleteContact").addEventListener("click", deleteContact);
     },
 
     // Update DOM on a Received Event
@@ -65,4 +71,121 @@ function showLocalStorage() {
 
 function removeProjectFromLocalStorage() {
    localStorage.removeItem("Project");
+}
+
+function getLocalStorageByKey() {
+   console.log(localStorage.key(0));
+}
+
+document.addEventListener("volumeupbutton", callbackFunction, false);  
+function callbackFunction() { 
+   alert('Volume Up Button is pressed!');
+}
+
+document.addEventListener("backbutton", onBackKeyDown, false);  
+function onBackKeyDown(e) { 
+   e.preventDefault(); 
+   alert('Back Button is Pressed!'); 
+} 
+
+document.addEventListener("backbutton", onBackKeyDown, false);  
+function onBackKeyDown(e) { 
+   e.preventDefault(); 
+   alert('Back Button is Pressed!'); 
+}
+
+function onBatteryStatus(info) { 
+   alert("BATTERY STATUS:  Level: " + info.level + " isPlugged: " + info.isPlugged); 
+}
+
+function cameraTakePicture() { 
+   navigator.camera.getPicture(onSuccess, onFail, {  
+      quality: 50, 
+      destinationType: Camera.DestinationType.DATA_URL 
+   });  
+   
+   function onSuccess(imageData) { 
+      var image = document.getElementById('myImage'); 
+      image.src = "data:image/jpeg;base64," + imageData; 
+   }  
+   
+   function onFail(message) { 
+      alert('Failed because: ' + message); 
+   } 
+}
+
+function cameraGetPicture() {
+   navigator.camera.getPicture(onSuccess, onFail, { quality: 50,
+      destinationType: Camera.DestinationType.DATA_URL,
+      sourceType: Camera.PictureSourceType.PHOTOLIBRARY
+   });
+
+   function onSuccess(imageURL) {
+      var image = document.getElementById('myImage');
+      image.src = imageURL;
+   }
+
+   function onFail(message) {
+      alert('Failed because: ' + message);
+   }
+
+}
+
+function createContact() {
+   var myContact = navigator.contacts.create({"displayName": "Test User"});
+   myContact.save(contactSuccess, contactError);
+    
+   function contactSuccess() {
+      alert("Contact is saved!");
+   }
+    
+   function contactError(message) {
+      alert('Failed because: ' + message);
+   }
+    
+}
+
+function findContacts() {
+   var options = new ContactFindOptions();
+   options.filter = "";
+   options.multiple = true;
+   fields = ["displayName"];
+   navigator.contacts.find(fields, contactfindSuccess, contactfindError, options);
+    
+   function contactfindSuccess(contacts) {
+      for (var i = 0; i < contacts.length; i++) {
+         alert("Display Name = " + contacts[i].displayName);
+      }
+   }
+    
+   function contactfindError(message) {
+      alert('Failed because: ' + message);
+   }
+    
+}
+
+function deleteContact() {
+   var options = new ContactFindOptions();
+   options.filter = "Test User";
+   options.multiple = false;
+   fields = ["displayName"];
+   navigator.contacts.find(fields, contactfindSuccess, contactfindError, options);
+
+   function contactfindSuccess(contacts) {
+      var contact = contacts[0];
+      contact.remove(contactRemoveSuccess, contactRemoveError);
+
+      function contactRemoveSuccess(contact) {
+         alert("Contact Deleted");
+      }
+
+      function contactRemoveError(message) {
+         alert('Failed because: ' + message);
+      }
+   }
+
+   function contactfindError(message) {
+      alert('Failed because: ' + message);
+   }
+    
 }
